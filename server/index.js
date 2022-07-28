@@ -45,7 +45,7 @@ app.get('/reviews/meta', (req, res) => {
   let returnObj = {
     product_id: id,
     ratings: {},
-    recommended: {},
+    recommended: {true: 0, false: 0},
     characteristics: {},
   }
   // let reviews = [];
@@ -55,10 +55,15 @@ app.get('/reviews/meta', (req, res) => {
         !returnObj.ratings[review.rating]
           ? returnObj.ratings[review.rating] = 1
           : returnObj.ratings[review.rating]++;
+        review.recommend
+          ? returnObj.recommended.true++
+          : returnObj.recommended.false++;
       })
     })
     .then(() => res.send(returnObj))
     .catch((err) => res.send(err));
+
+  // TODO: got to work on characteristics object.
 })
 
 //add review
