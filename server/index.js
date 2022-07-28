@@ -48,7 +48,17 @@ app.get('/reviews/meta', (req, res) => {
     recommended: {},
     characteristics: {},
   }
-  res.send(returnObj);
+  // let reviews = [];
+  db.findByProductId(id)
+    .then((reviews) => {
+      reviews.forEach(review => {
+        !returnObj.ratings[review.rating]
+          ? returnObj.ratings[review.rating] = 1
+          : returnObj.ratings[review.rating]++;
+      })
+    })
+    .then(() => res.send(returnObj))
+    .catch((err) => res.send(err));
 })
 
 //add review
