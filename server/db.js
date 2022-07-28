@@ -121,6 +121,14 @@ const create = (data) => {
    .then((res) => console.log(res));
 }
 
+const markHelpful = (reviewId) => {
+  return Review.findOneAndUpdate({id: reviewId}, { $inc: {helpfulness: 1}}).exec();
+}
+
+const report = (reviewId) => {
+  return Review.findOneAndUpdate({id: reviewId}, {reported: true}).exec();
+}
+
 module.exports = {
   findByProductId,
   create,
@@ -132,4 +140,6 @@ module.exports = {
   createPhotosArray,
   bulkTransform,
   getPhotoUrlArray,
+  markHelpful,
+  report,
 }

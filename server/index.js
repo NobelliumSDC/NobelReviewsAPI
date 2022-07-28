@@ -59,16 +59,20 @@ app.post('/reviews', (req, res) => {
 
 //mark as helpful
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  const id = req.params.review_id;
-  console.log('review_id:', id.slice(1));
-  res.send('should mark as helpful');
+  const id = req.params.review_id.slice(1);
+  db.markHelpful(id)
+    .then((response) => console.log(response, 'success marking helpful'))
+    .catch((err) => console.log('error marking helpful'))
+  res.send('success');
 })
 
 //report review
 app.put('/reviews/:review_id/report', (req, res) => {
-  const id = req.params.review_id;
-  console.log('review_id:', id.slice(1));
-  res.send('should report review');
+  const id = req.params.review_id.slice(1);
+  db.report(id)
+    .then((response) => console.log(response, 'success reporting review'))
+    .catch((err) => console.log('error reporting'))
+  res.send('success reporting');
 })
 
 
