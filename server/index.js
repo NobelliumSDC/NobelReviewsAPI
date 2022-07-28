@@ -40,6 +40,37 @@ app.get('/reviews', (req, res) => {
 });
 
 
+app.get('/reviews/meta', (req, res) => {
+  const id = req.query.product_id;
+  let returnObj = {
+    product_id: id,
+    ratings: {},
+    recommended: {},
+    characteristics: {},
+  }
+  res.send(returnObj);
+})
+
+//add review
+app.post('/reviews', (req, res) => {
+  //should post to
+  res.send('should add review to database');
+})
+
+//mark as helpful
+app.put('/reviews/:review_id/helpful', (req, res) => {
+  const id = req.params.review_id;
+  console.log('review_id:', id.slice(1));
+  res.send('should mark as helpful');
+})
+
+//report review
+app.put('/reviews/:review_id/report', (req, res) => {
+  const id = req.params.review_id;
+  console.log('review_id:', id.slice(1));
+  res.send('should report review');
+})
+
 
 const PORT = process.env.PORT || 3000;
 

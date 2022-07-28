@@ -64,7 +64,7 @@ const findChar = () => {
 
 const findPhotoUrls = (reviewId) => {
   return (
-    Photo.find({review_id: reviewId}).select('url').lean().exec()
+    Photo.find({review_id: reviewId}).select('id url').lean().exec()
   )
 }
 
@@ -93,8 +93,10 @@ const transform = (reviewId) => {
 const getPhotoUrlArray = async (reviewId) => {
   let array = [];
   const objs = await findPhotoUrls(reviewId);
-  objs.forEach(obj => array.push(obj.url));
-  // console.log(objs);
+  objs.forEach(obj => {
+    let newObj = {id: obj.id, url: obj.url}; // formatting
+    array.push(newObj);
+  });
   return array;
 }
 
@@ -114,38 +116,14 @@ const bulkTransform = (n) => {
     });
 }
 
-
-//below code gets the first 15 reviews, and logs all the photoUrls for the reviews
-// find()
-//   .then((res) => {
-//     let reviews = res;
-//     reviews.forEach(review => {
-//       console.log(review.id)
-//       findPhotoUrls(review.id)
-//         .then(async (res) => {
-//           let photos = res;
-//           await photos.forEach(async (photo) => await console.log(photo.review_id, ':', photo.url))
-//         })
-//     })
-//   })
-// findPhotoUrls(5)
-//   .then((res) => {
-//     let array = [];
-//     console.log(res)
-//     // console.log(res.url)
-//     res.forEach((photo) => console.log(photo.url))
-
-//   })
-
-const findById = (reviewId) => {
-  return Review.findOne({id: reviewId}).exec().catch(err => console.log(err))
-};
-const create = (data) => Review.create(data);
+const create = (data) => {
+  Review.create(data)
+   .then((res) => console.log(res));
+}
 
 module.exports = {
   findByProductId,
   create,
-  findById,
   findPhotos,
   Photo,
   Review,
