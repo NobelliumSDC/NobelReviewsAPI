@@ -1,34 +1,157 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
-
-// It's not a good idea to hardcode connection credentials here.
-// Configure process.env variables in ../.env and use them
-// in your connection code: e.g. process.env.DB_NAME
-
-// TODO: Set up a connection to the "expresso" MongoDB database
-mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.DB_NAME}`); // Fix this string
-
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const reviewSchema = newSchema({
-  review_id: Number,
-  rating: Number,
-  summary: String,
-  photos: [{
-    id: Number,
-    url: String
-  }],
-  date: String,
-  recommend: Boolean,
-  response: String,
-  product_id: Number,
-  helpfulness: Number,
-  reviewer_name: String,
-  email: String,
-  characteristics: Object,
+mongoose
+  .connect(`mongodb://127.0.0.1:27017/${process.env.DB_NAME}`)
+  .then(console.log('Connected to MongoDB...'))
+  .catch((err) => console.log(err, 'error connecting to db'));
+
+const ReviewSchema = new Schema(
+    {
+      id: Number,
+      rating: Number,
+      body: String,
+      summary: String,
+      date: String,
+      recommend: Boolean,
+      reported: Boolean,
+      response: String,
+      product_id: Number,
+      helpfulness: Number,
+      reviewer_name: String,
+      reviewer_email: String,
+      // photos: [String],
 })
 
-const Review = new mongoose.model('Review', reviewSchema); //  TODO: Fill in arguments!
+const Review = mongoose.model('Review', ReviewSchema);
+
+const PhotoSchema = new Schema({
+  id: Number,
+  review_id: Number,
+  url: String,
+})
+
+const Photo = mongoose.model('Reviews_photo', PhotoSchema);
+
+const CharacteristicSchema = new Schema({
+  id: Number,
+  name: String,
+  product_id: Number,
+})
+
+const Characteristic = mongoose.model('Characteristic', CharacteristicSchema);
 
 
-module.exports = Review;
+
+const findPhotos = () => {
+  return Photo.find({review_id:5}).exec();
+}
+
+const findByProductId = (productId) => {
+  return (
+    Review.find({product_id:productId})
+    .lean()
+    // .limit(150)
+    .exec()
+    .catch(err => console.log(err))
+    )
+  };
+
+const findChar = () => {
+  return Characteristic.find({product_id: 1}).exec();
+}
+
+const findPhotoUrls = (reviewId) => {
+  return (
+    Photo.find({review_id: reviewId}).select('url').lean().exec()
+  )
+}
+
+const createPhotosArray = (reviewId, photosArray) => {
+  return(
+    Review.updateOne({id: reviewId}, {$set: {photos: photosArray}})
+  )
+}
+
+
+const transform = (reviewId) => {
+  // below code transforms!
+  return (findPhotoUrls(reviewId)  // find photoUrls of review id
+    .then(res => {
+      let array = [];
+      res.forEach((obj) => {
+        array.push(obj.url);  // push each url into an array
+      })
+      console.log(array);
+      createPhotosArray(reviewId, array) // create a new field at reviewid
+        .then(res => console.log(res)) // where photos: array of urls
+    })
+  )
+}
+
+const getPhotoUrlArray = async (reviewId) => {
+  let array = [];
+  const objs = await findPhotoUrls(reviewId);
+  objs.forEach(obj => array.push(obj.url));
+  // console.log(objs);
+  return array;
+}
+
+const bulkTransform = (n) => {
+  const start = new Date().getTime();
+  console.log('starting transformations . . .')
+  let promises = [];
+  for (let i = 1; i < n; i++) {
+    promises.push(transform(i));
+  }
+  return Promise.all(promises)
+    .then(async () => {
+      await console.log('done running', n, 'amount of promises');
+      const end = new Date().getTime();
+      const time = end - start;
+      await console.log('execution time:', Math.round(time/1000), 'secs');
+    });
+}
+
+
+//below code gets the first 15 reviews, and logs all the photoUrls for the reviews
+// find()
+//   .then((res) => {
+//     let reviews = res;
+//     reviews.forEach(review => {
+//       console.log(review.id)
+//       findPhotoUrls(review.id)
+//         .then(async (res) => {
+//           let photos = res;
+//           await photos.forEach(async (photo) => await console.log(photo.review_id, ':', photo.url))
+//         })
+//     })
+//   })
+// findPhotoUrls(5)
+//   .then((res) => {
+//     let array = [];
+//     console.log(res)
+//     // console.log(res.url)
+//     res.forEach((photo) => console.log(photo.url))
+
+//   })
+
+const findById = (reviewId) => {
+  return Review.findOne({id: reviewId}).exec().catch(err => console.log(err))
+};
+const create = (data) => Review.create(data);
+
+module.exports = {
+  findByProductId,
+  create,
+  findById,
+  findPhotos,
+  Photo,
+  Review,
+  transform,
+  findPhotoUrls,
+  createPhotosArray,
+  bulkTransform,
+  getPhotoUrlArray,
+}
