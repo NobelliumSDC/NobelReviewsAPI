@@ -14,14 +14,13 @@ const ReviewSchema = new Schema(
       body: String,
       summary: String,
       date: String,
-      recommend: Boolean,
-      reported: Boolean,
-      response: String,
+      recommend: {type: Boolean, default: false},
+      reported: {type: Boolean, default: false},
+      response: {type: String, default: null},
       product_id: Number,
-      helpfulness: Number,
+      helpfulness: {type: Number, default: 0},
       reviewer_name: String,
       reviewer_email: String,
-      // photos: [String],
 })
 
 const Review = mongoose.model('Review', ReviewSchema);
@@ -122,7 +121,7 @@ const bulkTransform = (n) => {
 }
 
 const create = (data) => {
-  Review.create(data)
+  return Review.create(data)
    .then((res) => console.log(res));
 }
 
@@ -138,6 +137,24 @@ const findCharsByReview = (reviewId) => {
   return CharReview.find({review_id: reviewId}).lean().exec();
 }
 
+const getLastReview = () => {
+  return Review.find().sort({'_id': -1}).limit(1).exec()
+}
+const getLastPhoto = () => {
+  return Photo.find().sort({'_id': -1}).limit(1).exec()
+}
+const getLastChar = () => {
+  return Characteristic.find().sort({'_id': -1}).limit(1).exec()
+}
+const getLastCharReview = () => {
+  return CharReview.find().sort({'_id': -1}).limit(1).exec()
+}
+getLastReview()
+  .then((res) => console.log(res));
+//   getLastPhoto()
+//   .then((res) => console.log(res));
+//   getLastChar()
+//   .then((res) => console.log(res));
 module.exports = {
   findByProductId,
   create,
@@ -152,4 +169,5 @@ module.exports = {
   report,
   findChar,
   findCharsByReview,
+  getLastReview,
 }

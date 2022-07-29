@@ -112,19 +112,64 @@ app.get('/reviews/meta', (req, res) => {
       .then(() => res.send(returnObj));
     })
     .catch((err) => res.send(err));
-
-  // TODO: got to work on characteristics object.
 })
+
+
+const sample = {
+  product_id: 5,
+  rating: 1,
+  summary: 'hello',
+  body: 'what it do baby yao yoa',
+  name: 'IU',
+  email: 'tea@time.com',
+  recommend: true,
+  characteristics: {
+    125031: 2,
+    125032: 3,
+    125033: 4,
+    125034: 4,
+  },
+  photos: ['http://res.cloudinary.com/joehan/image/upload/v1658260875/b7xg9m7xthi6uzftq5me.jpg']
+};
 
 //add review
 app.post('/reviews', (req, res) => {
   //should post to
-  res.send('should add review to database');
   // needs to save review to Review
+  // console.log(req.body);
+  let reviewForm = req.body;
+  let chars = reviewForm.characteristics;
+  if (reviewForm.photos) {
+    let photos = reviewForm.photos;
+    delete reviewForm.photos;
+  }
+  delete reviewForm.characteristics;
+  reviewForm.helpfulness = 0;
+  reviewForm.reported = false;
+  reviewForm.reviewer_email = reviewForm.email;
+  reviewForm.reviewer_name = reviewForm.name;
+  reviewForm.date = (new Date().getTime()+ '');
+  db.getLastReview()
+    .then((review) => {
+      // console.log(review[0].id);
+      reviewForm.id = review[0].id + 1
+      console.log(reviewForm)
+      db.create(reviewForm)
+        .then((response) => {
+          console.log(response, 'success adding review');
+          res.send('should add review to database')
+        })
+        .catch((err) => console.log(err, 'error adding'))
+    })
+  // console.log(reviewForm);
+  // db.create(reviewForm)
+
   // needs to save photo to Photo
+
   // needs to save characteristics to characteristics.
 
 
+  // res.send('should add review to database');
 })
 
 //mark as helpful
