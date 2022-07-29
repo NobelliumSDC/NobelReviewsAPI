@@ -87,14 +87,13 @@ app.get('/reviews/meta', (req, res) => {
           const charsObj = {};
           charsOfReviews.forEach((charsOfReview) => {
             charsOfReview.forEach((char) => {
-            // console.log(char);
               const charId = char.characteristic_id;
               !charsObj[charId]
                 ? charsObj[charId] = char.value
                 : charsObj[charId] += char.value;
             });
           });
-          // console.log(charsObj);
+          console.log(charsObj);
           for (const key in charsObj) {
             const temp = charsObj[key];
             charsObj[key] = parseFloat(temp) / reviewIds.length;
@@ -177,23 +176,11 @@ app.post('/reviews', (req, res) => {
                 };
                 charRevObjs.push(obj);
               });
-              console.log(charRevObjs);
+              // console.log(charRevObjs);
               db.create('charreview', charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
                 .then(() => res.send('review added to database'));
-              // .then(() => {
-              //   let characObjs = [];
-              //   charsOfProduct.forEach((char, i) => {
-              //     let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
-              //     characObjs.push(obj);
-              //   })
-              //   console.log(characObjs, 'CHARACOBJECTSHERE');
-              //   db.create('char', characObjs)
-              //     .then(() => console.log('success adding chars'))
-              //     .catch((err) => console.log(err, 'error adding chars'))
-              //     .then(() => res.send('review added to database'))  // DONE
-              // })
             });
         });
     });
