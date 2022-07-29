@@ -48,13 +48,7 @@ app.get('/reviews/meta', (req, res) => {
     characteristics: {},
   }
   let charObj = {};
-  // db.findChar(id)
-  //   .then((chars) => {
-  //     chars.forEach(char => {
-  //       console.log(char.name);
-  //       returnObj.characteristics[char.name] = 0;
-  //     })
-  //   })
+
   let reviewIds = [];
   db.findByProductId(id)
     .then((reviews) => {
@@ -72,7 +66,6 @@ app.get('/reviews/meta', (req, res) => {
       db.findChar(id)
       .then((chars) => {
         chars.forEach(char => {
-          // returnObj.characteristics[`${char.name}`] = {};
           returnObj.characteristics[`${char.name}`] = {id:char.id};
         })
       })
@@ -102,7 +95,6 @@ app.get('/reviews/meta', (req, res) => {
             let charId = returnObj.characteristics[name].id + '';
             console.log(key);
             if(charId === key) {
-              // console.log('match!');
               returnObj.characteristics[name]['value'] = charsObj[key];
               break;
             }
@@ -137,7 +129,6 @@ app.post('/reviews', (req, res) => {
   let reviewForm = req.body;
   let chars = reviewForm.characteristics;
   let photoUrls = [];
-
   if (reviewForm.photos) {
     console.log('photos exists!')
     photoUrls = reviewForm.photos;
@@ -173,7 +164,6 @@ app.post('/reviews', (req, res) => {
             .then(() => res.send('review added to database'))
         })
     })
-
 
   // TODO: needs to save characteristics to characteristics and reviews char
 })
