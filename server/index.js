@@ -89,11 +89,11 @@ app.get('/reviews/meta', (req, res) => {
         console.log(charsObj);
         for(let key in charsObj) {
           let temp = charsObj[key];
-          charsObj[key] = temp/reviewIds.length;
+          charsObj[key] = parseFloat(temp)/reviewIds.length;
           for(let name in returnObj.characteristics) {
             let charId = returnObj.characteristics[name].id + '';
-            console.log(key);
-            console.log(charId, 'charId')
+            // console.log(key);
+            // console.log(charId, 'charId')
             if(charId === key) {
               console.log('match!')
               returnObj.characteristics[name]['value'] = charsObj[key];
@@ -188,28 +188,22 @@ app.post('/reviews', (req, res) => {
               db.createCharReview(charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
-                // .then(() => res.send('review added to database'))
-                .then(() => {
-                  let characObjs = [];
-                  let names = ['Fit', 'Length', 'Comfort', 'Quality'];
-
-                  charsOfProduct.forEach((char, i) => {
-                    let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
-                    characObjs.push(obj);
-                  })
-                  console.log(characObjs, 'CHARACOBJECTSHERE');
-                  db.createChar(characObjs)
-                    .then(() => console.log('success adding chars'))
-                    .catch((err) => console.log(err, 'error adding chars'))
-                    .then(() => res.send('review added to database'))  // DONE
-                })
-            }) // gott aadd the characteristics actually
-            // meta will never have an error if we are adding new characteristics and
-            // creating new ids.
-            //
+                .then(() => res.send('review added to database'))
+                // .then(() => {
+                //   let characObjs = [];
+                //   charsOfProduct.forEach((char, i) => {
+                //     let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
+                //     characObjs.push(obj);
+                //   })
+                //   console.log(characObjs, 'CHARACOBJECTSHERE');
+                //   db.createChar(characObjs)
+                //     .then(() => console.log('success adding chars'))
+                //     .catch((err) => console.log(err, 'error adding chars'))
+                //     .then(() => res.send('review added to database'))  // DONE
+                // })
+            })
         })
     })
-    // res.send('hello');
 })
 
 //mark as helpful
