@@ -52,14 +52,23 @@ const CharReviewSchema = new Schema({
 
 const CharReview = mongoose.model('Characteristic_review', CharReviewSchema);
 
-const findByProductId = (productId, sortMethod, page, count) => (
-  Review.find({ product_id: productId, reported: false })
+const findByProductId = (productId, sortInput, page, count) => {
+  let sortOption = '';
+  if (sortInput === 'relevance' || sortInput === 'helpfulness') {
+    sortOption = '-helpfulness'; // default sort option will be helpfulness.
+  }
+  if (sortInput === 'newest') {
+    sortOption = '-date';
+  }
+
+  return Review.find({ product_id: productId, reported: false })
     .skip((page - 1) * count)
     .limit(count)
+    .sort(sortOption)
     .lean()
     .exec()
-    .catch((err) => console.log(err))
-);
+    .catch((err) => console.log(err));
+};
 
 const findChar = (productId) => Characteristic.find({ product_id: productId }).lean().exec();
 

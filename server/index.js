@@ -20,6 +20,7 @@ app.get('/reviews', (req, res) => {
   const page = req.query.page || 1;
   const count = req.query.count || 5;
   let reviews = [];
+  let length = 0;
   db.findByProductId(id, sortMethod, page, count) // sortoption
     .then((response) => {
       reviews = response
@@ -28,12 +29,13 @@ app.get('/reviews', (req, res) => {
           review.photos = [];
           return review;
         });
+      length = response.length;
       return reviews;
     })
-    .then((value) => {
+    .then((resp) => {
       const ops = [];
-      for (let i = 0; i < value.length; i++) {
-        ops.push(db.getPhotoUrlArray(reviews[i].id));
+      for (let i = 0; i < resp.length; i++) {
+        ops.push(db.getPhotoUrlArray(resp[i].id));
       }
       return Promise.all(ops);
     })
@@ -46,7 +48,7 @@ app.get('/reviews', (req, res) => {
       const returnObj = {
         product: id,
         page,
-        count: (reviews.length < 5) ? reviews.length : count,
+        count: (length < count) ? length : count,
         results: reviews,
       };
       res.send(returnObj);
