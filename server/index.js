@@ -181,7 +181,7 @@ app.post('/reviews', (req, res) => {
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
                 .then(() => res.send('review added to database'))  // DONE
-            })
+            }) // gott aadd the characteristics actually
         })
     })
 })
