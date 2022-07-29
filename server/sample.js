@@ -12,5 +12,5 @@ const sample = {
     125033: 4,
     125034: 4,
   },
-  photos: ['http://res.cloudinary.com/joehan/image/upload/v1658260875/b7xg9m7xthi6uzftq5me.jpg']
+  photos: ['http://res.cloudinary.com/joehan/image/upload/v1658260875/b7xg9m7xthi6uzftq5me.jpg'],
 };

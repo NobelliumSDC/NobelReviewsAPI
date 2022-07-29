@@ -1,11 +1,11 @@
-require("dotenv").config();
-const express = require("express");
-const path = require("path");
-const controllers = require("./controllers.js");
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+// const controllers = require('./controllers.js');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(path.join(__dirname, '../client/dist')));
 app.use(express.json());
 const db = require('./db.js');
 
@@ -15,43 +15,42 @@ app.get('/reviews', (req, res) => {
   db.findByProductId(id)
     .then((response) => {
       reviews = response
-        .filter(review => !review.reported)
-        .map(review => {
-          review.photos=[];
+        .filter((review) => !review.reported)
+        .map((review) => {
+          review.photos = [];
           return review;
-        })
+        });
       return reviews;
     })
     .then((value) => {
-      let ops = [];
-      for(let i = 0; i < value.length; i++) {
-        ops.push(db.getPhotoUrlArray(reviews[i].id))
+      const ops = [];
+      for (let i = 0; i < value.length; i++) {
+        ops.push(db.getPhotoUrlArray(reviews[i].id));
       }
-      return Promise.all(ops)
+      return Promise.all(ops);
     })
     .then((arrays) => {
       arrays.forEach((array, i) => {
         reviews[i].photos = array;
-      })
+      });
     })
     .then(() => res.send(reviews));
-
 });
 
 app.get('/reviews/meta', (req, res) => {
   const id = req.query.product_id;
-  let returnObj = {
+  const returnObj = {
     product_id: id,
     ratings: {},
-    recommended: {true: 0, false: 0},
+    recommended: { true: 0, false: 0 },
     characteristics: {},
-  }
-  let charObj = {};
+  };
+  const charObj = {};
 
-  let reviewIds = [];
+  const reviewIds = [];
   db.findByProductId(id)
     .then((reviews) => {
-      reviews.forEach(review => {
+      reviews.forEach((review) => {
         !returnObj.ratings[review.rating]
           ? returnObj.ratings[review.rating] = 1
           : returnObj.ratings[review.rating]++;
@@ -59,58 +58,56 @@ app.get('/reviews/meta', (req, res) => {
           ? returnObj.recommended.true++
           : returnObj.recommended.false++;
         reviewIds.push(review.id);
-      })
+      });
     })
     .then(() => {
       db.findChar(id) // find in collection characteristics with product_id
-      .then((chars) => {
-        chars.forEach(char => {
-          returnObj.characteristics[`${char.name}`] = {id:char.id}; // will log as 14, 15, 16, 17
+        .then((chars) => {
+          chars.forEach((char) => {
+            returnObj.characteristics[`${char.name}`] = { id: char.id }; // will load the current characteristics of product.
+          });
         })
-      })
-      .then(() => {
-        let ops = [];
-        reviewIds.forEach(id => {
-          ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
+        .then(() => {
+          const ops = [];
+          reviewIds.forEach((id) => {
+            ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
+          });
+          return Promise.all(ops); //
         })
-        return Promise.all(ops); //
-      })
-      .then((charsOfReviews) => { // charsofreviews is an array of char reviews with ratings of each char
-        let charsObj = {}
-        charsOfReviews.forEach((charsOfReview) => {
-          charsOfReview.forEach((char) => {
+        .then((charsOfReviews) => { // an array of char reviews with ratings of each char
+          const charsObj = {};
+          charsOfReviews.forEach((charsOfReview) => {
+            charsOfReview.forEach((char) => {
             // console.log(char);
-            let charId = char.characteristic_id;
-            !charsObj[charId]
-              ? charsObj[charId] = char.value
-              : charsObj[charId] += char.value;
-          })
-        })
-        console.log(charsObj);
-        for(let key in charsObj) {
-          let temp = charsObj[key];
-          charsObj[key] = parseFloat(temp)/reviewIds.length;
-          for(let name in returnObj.characteristics) {
-            let charId = returnObj.characteristics[name].id + '';
-            // console.log(key);
-            // console.log(charId, 'charId')
-            if(charId === key) {
-              console.log('match!')
-              returnObj.characteristics[name]['value'] = charsObj[key];
-              break;
+              const charId = char.characteristic_id;
+              !charsObj[charId]
+                ? charsObj[charId] = char.value
+                : charsObj[charId] += char.value;
+            });
+          });
+          console.log(charsObj);
+          for (const key in charsObj) {
+            const temp = charsObj[key];
+            charsObj[key] = parseFloat(temp) / reviewIds.length;
+            for (const name in returnObj.characteristics) {
+              const charId = `${returnObj.characteristics[name].id}`;
+              if (charId === key) {
+                console.log('match!');
+                returnObj.characteristics[name].value = charsObj[key];
+                break;
+              }
             }
           }
-        }
-      })
-      .then(() => res.send(returnObj));
+        })
+        .then(() => res.send(returnObj));
     })
     .catch((err) => res.send(err));
-})
+});
 
-//add review
+// add review
 app.post('/reviews', (req, res) => {
-  let reviewForm = req.body;
-  let chars = reviewForm.characteristics;
+  const reviewForm = req.body;
+  const chars = reviewForm.characteristics;
   let photoUrls = [];
   if (reviewForm.photos) {
     photoUrls = reviewForm.photos;
@@ -121,93 +118,96 @@ app.post('/reviews', (req, res) => {
   reviewForm.reported = false;
   reviewForm.reviewer_email = reviewForm.email;
   reviewForm.reviewer_name = reviewForm.name;
-  reviewForm.date = (new Date().getTime()+ '');
+  reviewForm.date = (`${new Date().getTime()}`);
   let lastPhotoId = 0;
   let lastCharId = 0;
   let lastCharReviewId = 0;
   let charsOfProduct = [];
   db.getLast('photo')
-    .then((photo) => lastPhotoId = photo[0].id)
+    .then((photo) => { lastPhotoId = photo[0].id; })
     .then(() => console.log('this is the last photo id', lastPhotoId));
   db.getLast('char')
-    .then((char) => lastCharId = char[0].id)
+    .then((char) => { lastCharId = char[0].id; })
     .then(() => console.log('this is the last photo id', lastCharId));
   db.getLast('charreview')
-    .then((charRev) => lastCharReviewId = charRev[0].id)
+    .then((charRev) => { lastCharReviewId = charRev[0].id; })
     .then(() => console.log('this is the last photo id', lastCharReviewId));
   db.getCharsForProduct(reviewForm.product_id)
-    .then((res) => charsOfProduct = res)
-    .then(()=> console.log('these are teh chars of Product', charsOfProduct));
+    .then((cOfP) => { charsOfProduct = cOfP; })
+    .then(() => console.log('these are teh chars of Product', charsOfProduct));
   db.getLast('review')
     .then((review) => {
-      reviewForm.id = review[0].id + 1
+      reviewForm.id = review[0].id + 1;
       db.create('review', reviewForm)
         .then(() => {
           console.log('success adding review');
         })
         .catch((err) => console.log(err, 'error adding'))
         .then(() => {
-          let photoObjs = [];
+          const photoObjs = [];
           photoUrls.forEach((url, i) => {
-            let obj = {id: lastPhotoId + 1 + i, review_id: reviewForm.id, url: url};
+            const obj = { id: lastPhotoId + 1 + i, review_id: reviewForm.id, url };
             photoObjs.push(obj);
-          })
+          });
           // console.log(photoObjs);
           db.create('photo', photoObjs)
             .then(() => console.log('success adding photos'))
             .catch((err) => console.log(err, 'error adding photos'))
             .then(() => { // onto characteristic reviews
-              let charRevObjs = [];
-              let charRatings = Object.values(chars);
+              const charRevObjs = [];
+              const charRatings = Object.values(chars);
               // let charIds = Object.keys(chars);
-              let charIds = []
+              const charIds = [];
               charsOfProduct.forEach((char) => charIds.push(char.id));
               charRatings.forEach((rating, i) => {
-                let obj = {id: lastCharReviewId + 1 + i, review_id: reviewForm.id, value: rating, characteristic_id: parseInt(charIds[i])}
+                const obj = {
+                  id: lastCharReviewId + 1 + i,
+                  review_id: reviewForm.id,
+                  value: rating,
+                  characteristic_id: parseInt(charIds[i]),
+                };
                 charRevObjs.push(obj);
-              })
+              });
               console.log(charRevObjs);
               db.create('charreview', charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
-                .then(() => res.send('review added to database'))
-                // .then(() => {
-                //   let characObjs = [];
-                //   charsOfProduct.forEach((char, i) => {
-                //     let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
-                //     characObjs.push(obj);
-                //   })
-                //   console.log(characObjs, 'CHARACOBJECTSHERE');
-                //   db.create('char', characObjs)
-                //     .then(() => console.log('success adding chars'))
-                //     .catch((err) => console.log(err, 'error adding chars'))
-                //     .then(() => res.send('review added to database'))  // DONE
-                // })
-            })
-        })
-    })
-})
+                .then(() => res.send('review added to database'));
+              // .then(() => {
+              //   let characObjs = [];
+              //   charsOfProduct.forEach((char, i) => {
+              //     let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
+              //     characObjs.push(obj);
+              //   })
+              //   console.log(characObjs, 'CHARACOBJECTSHERE');
+              //   db.create('char', characObjs)
+              //     .then(() => console.log('success adding chars'))
+              //     .catch((err) => console.log(err, 'error adding chars'))
+              //     .then(() => res.send('review added to database'))  // DONE
+              // })
+            });
+        });
+    });
+});
 
-//mark as helpful
+// mark as helpful
 app.put('/reviews/:review_id/helpful', (req, res) => {
   const id = req.params.review_id.slice(1);
   db.markHelpful(id)
     .then((response) => console.log(response, 'success marking helpful'))
-    .catch((err) => console.log('error marking helpful'))
+    .catch((err) => console.log('error marking helpful', err));
   res.send('success');
-})
+});
 
-//report review
+// report review
 app.put('/reviews/:review_id/report', (req, res) => {
   const id = req.params.review_id.slice(1);
   db.report(id)
     .then((response) => console.log(response, 'success reporting review'))
-    .catch((err) => console.log('error reporting'))
+    .catch((err) => console.log('error reporting', err));
   res.send('success reporting');
-})
+});
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () =>
-  console.log(`Server listening at http://localhost:${PORT}`)
-);
+app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}`));
