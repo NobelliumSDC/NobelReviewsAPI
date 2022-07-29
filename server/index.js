@@ -38,7 +38,6 @@ app.get('/reviews', (req, res) => {
 
 });
 
-
 app.get('/reviews/meta', (req, res) => {
   const id = req.query.product_id;
   let returnObj = {
@@ -106,7 +105,6 @@ app.get('/reviews/meta', (req, res) => {
     .catch((err) => res.send(err));
 })
 
-
 const sample = {
   product_id: 5,
   rating: 1,
@@ -141,16 +139,23 @@ app.post('/reviews', (req, res) => {
   reviewForm.reviewer_name = reviewForm.name;
   reviewForm.date = (new Date().getTime()+ '');
   let lastPhotoId = 0;
+  let lastCharId = 0;
+  let lastCharReviewId = 0;
   db.getLastPhoto()
     .then((photo) => lastPhotoId = photo[0].id)
     .then(() => console.log('this is the last photo id', lastPhotoId));
+  db.getLastChar()
+    .then((char) => lastCharId = char[0].id)
+    .then(() => console.log('this is the last photo id', lastCharId));
+  db.getLastCharReview()
+    .then((charRev) => lastCharReviewId = charRev[0].id)
+    .then(() => console.log('this is the last photo id', lastCharReviewId));
   db.getLastReview()
     .then((review) => {
       reviewForm.id = review[0].id + 1
       db.create(reviewForm)
         .then(() => {
           console.log('success adding review');
-
         })
         .catch((err) => console.log(err, 'error adding'))
         .then(() => {
@@ -161,11 +166,24 @@ app.post('/reviews', (req, res) => {
           })
           // console.log(photoObjs);
           db.createPhoto(photoObjs)
-            .then(() => res.send('review added to database'))
+            .then(() => console.log('success adding photos'))
+            .catch((err) => console.log(err, 'error adding photos'))
+            .then(() => { // onto characteristic reviews
+              const charRevObjs = [];
+              let charRatings = Object.values(chars);
+              let charIds = Object.keys(chars);
+              charRatings.forEach((rating, i) => {
+                let obj = {id: lastCharReviewId + 1 + i, review_id: reviewForm.id, value: rating, characteristic_id: parseInt(charIds[i])}
+                charRevObjs.push(obj);
+              })
+              console.log(charRevObjs);
+              db.createCharReview(charRevObjs)
+                .then(() => console.log('success adding charreviews'))
+                .catch((err) => console.log(err, 'error adding charreviews'))
+                .then(() => res.send('review added to database'))  // DONE
+            })
         })
     })
-
-  // TODO: needs to save characteristics to characteristics and reviews char
 })
 
 //mark as helpful

@@ -153,12 +153,21 @@ const getLastCharReview = () => {
 //   .then((res) => console.log(res));
 //   getLastPhoto()
 //   .then((res) => console.log(res));
-//   getLastChar()
+//   getLastCharReview()
 //   .then((res) => console.log(res));
 
 const createPhoto = (data) => {
   return Photo.create(data)
     .then((res) => console.log(res))
+}
+
+const createChar = (data) => {
+  return Characteristic.create(data)
+    .then((res) => console.log)
+}
+const createCharReview = (data) => {
+  return CharReview.create(data)
+    .then((res) => console.log)
 }
 module.exports = {
   findByProductId,
@@ -176,5 +185,9 @@ module.exports = {
   findCharsByReview,
   getLastReview,
   getLastPhoto,
+  getLastChar,
+  getLastCharReview,
   createPhoto,
+  createChar,
+  createCharReview,
 }
