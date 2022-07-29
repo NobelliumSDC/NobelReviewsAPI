@@ -39,7 +39,15 @@ app.get('/reviews', (req, res) => {
         reviews[i].photos = array;
       });
     })
-    .then(() => res.send(reviews));
+    .then(() => {
+      const returnObj = {
+        product: id,
+        page: req.query.product_id || 0,
+        count: req.query.count || 0,
+        results: reviews,
+      };
+      res.send(returnObj);
+    });
 });
 
 app.get('/reviews/meta', (req, res) => {

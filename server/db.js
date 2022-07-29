@@ -69,19 +69,17 @@ const createPhotosArray = (reviewId, photosArray) => (
   Review.updateOne({ id: reviewId }, { $set: { photos: photosArray } })
 );
 
-const transform = (reviewId) =>
-  // below code transforms!
-  (findPhotoUrls(reviewId) // find photoUrls of review id
-    .then((res) => {
-      const array = [];
-      res.forEach((obj) => {
-        array.push(obj.url); // push each url into an array
-      });
-      console.log(array);
-      createPhotosArray(reviewId, array) // create a new field at reviewid
-        .then((res) => console.log(res)); // where photos: array of urls
-    })
-  );
+const transform = (reviewId) => (findPhotoUrls(reviewId) // find photoUrls of review id
+  .then((res) => {
+    const array = [];
+    res.forEach((obj) => {
+      array.push(obj.url); // push each url into an array
+    });
+    console.log(array);
+    createPhotosArray(reviewId, array) // create a new field at reviewid
+      .then((res) => console.log(res)); // where photos: array of urls
+  })
+);
 const getPhotoUrlArray = async (reviewId) => {
   const array = [];
   const objs = await findPhotoUrls(reviewId);
@@ -108,8 +106,7 @@ const bulkTransform = (n) => {
     });
 };
 
-const markHelpful = (reviewId) =>
-  Review.findOneAndUpdate({ id: reviewId }, { $inc: { helpfulness: 1 } }).exec();
+const markHelpful = (reviewId) => Review.findOneAndUpdate({ id: reviewId }, { $inc: { helpfulness: 1 } }).exec();
 
 const report = (reviewId) => Review.findOneAndUpdate({ id: reviewId }, { reported: true }).exec();
 
