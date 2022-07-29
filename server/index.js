@@ -1,7 +1,12 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable import/extensions */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-console */
+/* eslint-disable no-restricted-syntax */
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-// const controllers = require('./controllers.js');
 
 const app = express();
 
@@ -45,7 +50,6 @@ app.get('/reviews/meta', (req, res) => {
     recommended: { true: 0, false: 0 },
     characteristics: {},
   };
-  const charObj = {};
 
   const reviewIds = [];
   db.findByProductId(id)
