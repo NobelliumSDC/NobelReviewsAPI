@@ -16,8 +16,11 @@ const db = require('./db.js');
 
 app.get('/reviews', (req, res) => {
   const id = req.query.product_id;
+  const sortMethod = req.query.sort || 'relevance';
+  const page = req.query.page || 1;
+  const count = req.query.count || 5;
   let reviews = [];
-  db.findByProductId(id)
+  db.findByProductId(id, sortMethod, page, count) // sortoption
     .then((response) => {
       reviews = response
         .filter((review) => !review.reported)
@@ -42,8 +45,8 @@ app.get('/reviews', (req, res) => {
     .then(() => {
       const returnObj = {
         product: id,
-        page: req.query.product_id || 0,
-        count: req.query.count || 0,
+        page,
+        count: (reviews.length < 5) ? reviews.length : count,
         results: reviews,
       };
       res.send(returnObj);

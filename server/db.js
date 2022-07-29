@@ -52,8 +52,10 @@ const CharReviewSchema = new Schema({
 
 const CharReview = mongoose.model('Characteristic_review', CharReviewSchema);
 
-const findByProductId = (productId) => (
-  Review.find({ product_id: productId })
+const findByProductId = (productId, sortMethod, page, count) => (
+  Review.find({ product_id: productId, reported: false })
+    .skip((page - 1) * count)
+    .limit(count)
     .lean()
     .exec()
     .catch((err) => console.log(err))
