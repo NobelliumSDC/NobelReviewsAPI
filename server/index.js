@@ -16,23 +16,15 @@ const db = require('./db.js');
 
 app.get('/reviews', (req, res) => {
   const id = req.query.product_id;
-  const sortMethod = req.query.sort || 'relevance';
-  const page = req.query.page || 1;
-  const count = req.query.count || 5;
+  const sortMethod = req.query.sort || 'relevance'; // default relevance
+  const page = req.query.page || 1; // default 1
+  const count = req.query.count || 5; // default 5
   let reviews = [];
   let length = 0;
   db.findByProductId(id, sortMethod, page, count) // sortoption
-    .then((response) => {
-      reviews = response
-        .filter((review) => !review.reported)
-        .map((review) => {
-          review.photos = [];
-          return review;
-        });
-      length = response.length;
-      return reviews;
-    })
     .then((resp) => {
+      reviews = resp;
+      length = resp.length;
       const ops = [];
       for (let i = 0; i < resp.length; i++) {
         ops.push(db.getPhotoUrlArray(resp[i].id));
@@ -102,14 +94,14 @@ app.get('/reviews/meta', (req, res) => {
                 : charsObj[charId] += char.value;
             });
           });
-          console.log(charsObj);
+          // console.log(charsObj);
           for (const key in charsObj) {
             const temp = charsObj[key];
             charsObj[key] = parseFloat(temp) / reviewIds.length;
             for (const name in returnObj.characteristics) {
               const charId = `${returnObj.characteristics[name].id}`;
               if (charId === key) {
-                console.log('match!');
+                // console.log('match!');
                 returnObj.characteristics[name].value = charsObj[key];
                 break;
               }
@@ -137,21 +129,21 @@ app.post('/reviews', (req, res) => {
   reviewForm.reviewer_name = reviewForm.name;
   reviewForm.date = (`${new Date().getTime()}`);
   let lastPhotoId = 0;
-  let lastCharId = 0;
+  // let lastCharId = 0;
   let lastCharReviewId = 0;
   let charsOfProduct = [];
   db.getLast('photo')
-    .then((photo) => { lastPhotoId = photo[0].id; })
-    .then(() => console.log('this is the last photo id', lastPhotoId));
+    .then((photo) => { lastPhotoId = photo[0].id; });
+    // .then(() => console.log('this is the last photo id', lastPhotoId));
   db.getLast('char')
-    .then((char) => { lastCharId = char[0].id; })
-    .then(() => console.log('this is the last photo id', lastCharId));
+    .then((char) => { lastCharId = char[0].id; });
+    // .then(() => console.log('this is the last photo id', lastCharId));
   db.getLast('charreview')
-    .then((charRev) => { lastCharReviewId = charRev[0].id; })
-    .then(() => console.log('this is the last photo id', lastCharReviewId));
+    .then((charRev) => { lastCharReviewId = charRev[0].id; });
+    // .then(() => console.log('this is the last photo id', lastCharReviewId));
   db.getCharsForProduct(reviewForm.product_id)
-    .then((cOfP) => { charsOfProduct = cOfP; })
-    .then(() => console.log('these are teh chars of Product', charsOfProduct));
+    .then((cOfP) => { charsOfProduct = cOfP; });
+    // .then(() => console.log('these are teh chars of Product', charsOfProduct));
   db.getLast('review')
     .then((review) => {
       reviewForm.id = review[0].id + 1;
