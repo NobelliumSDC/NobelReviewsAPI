@@ -7,10 +7,11 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const { toDate, parseISO }= require('date-fns');
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use(express.static(path.join(__dirname, '../client/public')));
 app.use(express.json());
 const db = require('./db.js');
 
@@ -27,6 +28,12 @@ app.get('/reviews', (req, res) => {
       length = resp.length;
       const ops = [];
       for (let i = 0; i < resp.length; i++) {
+        const isoDate = new Date(parseInt(reviews[i].date));
+        // console.log(JSON.stringify(isoDate));
+        reviews[i].date = isoDate;
+        if (reviews[i].response === "null") {
+          reviews[i].response = null;
+        }
         ops.push(db.getPhotoUrlArray(resp[i].id));
       }
       return Promise.all(ops);
