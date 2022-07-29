@@ -149,12 +149,17 @@ const getLastChar = () => {
 const getLastCharReview = () => {
   return CharReview.find().sort({'_id': -1}).limit(1).exec()
 }
-getLastReview()
-  .then((res) => console.log(res));
+// getLastReview()
+//   .then((res) => console.log(res));
 //   getLastPhoto()
 //   .then((res) => console.log(res));
 //   getLastChar()
 //   .then((res) => console.log(res));
+
+const createPhoto = (data) => {
+  return Photo.create(data)
+    .then((res) => console.log(res))
+}
 module.exports = {
   findByProductId,
   create,
@@ -170,4 +175,6 @@ module.exports = {
   findChar,
   findCharsByReview,
   getLastReview,
+  getLastPhoto,
+  createPhoto,
 }

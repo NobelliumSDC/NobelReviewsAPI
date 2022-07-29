@@ -134,13 +134,13 @@ const sample = {
 
 //add review
 app.post('/reviews', (req, res) => {
-  //should post to
-  // needs to save review to Review
-  // console.log(req.body);
   let reviewForm = req.body;
   let chars = reviewForm.characteristics;
+  let photoUrls = [];
+
   if (reviewForm.photos) {
-    let photos = reviewForm.photos;
+    console.log('photos exists!')
+    photoUrls = reviewForm.photos;
     delete reviewForm.photos;
   }
   delete reviewForm.characteristics;
@@ -149,27 +149,33 @@ app.post('/reviews', (req, res) => {
   reviewForm.reviewer_email = reviewForm.email;
   reviewForm.reviewer_name = reviewForm.name;
   reviewForm.date = (new Date().getTime()+ '');
+  let lastPhotoId = 0;
+  db.getLastPhoto()
+    .then((photo) => lastPhotoId = photo[0].id)
+    .then(() => console.log('this is the last photo id', lastPhotoId));
   db.getLastReview()
     .then((review) => {
-      // console.log(review[0].id);
       reviewForm.id = review[0].id + 1
-      console.log(reviewForm)
       db.create(reviewForm)
-        .then((response) => {
-          console.log(response, 'success adding review');
-          res.send('should add review to database')
+        .then(() => {
+          console.log('success adding review');
+
         })
         .catch((err) => console.log(err, 'error adding'))
+        .then(() => {
+          const photoObjs = [];
+          photoUrls.forEach((url, i) => {
+            let obj = {id: lastPhotoId + 1 + i, review_id: reviewForm.id, url: url};
+            photoObjs.push(obj);
+          })
+          // console.log(photoObjs);
+          db.createPhoto(photoObjs)
+            .then(() => res.send('review added to database'))
+        })
     })
-  // console.log(reviewForm);
-  // db.create(reviewForm)
-
-  // needs to save photo to Photo
-
-  // needs to save characteristics to characteristics.
 
 
-  // res.send('should add review to database');
+  // TODO: needs to save characteristics to characteristics and reviews char
 })
 
 //mark as helpful
@@ -189,7 +195,6 @@ app.put('/reviews/:review_id/report', (req, res) => {
     .catch((err) => console.log('error reporting'))
   res.send('success reporting');
 })
-
 
 const PORT = process.env.PORT || 3000;
 
