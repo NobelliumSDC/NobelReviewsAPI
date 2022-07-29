@@ -107,30 +107,12 @@ app.get('/reviews/meta', (req, res) => {
     .catch((err) => res.send(err));
 })
 
-const sample = {
-  product_id: 5,
-  rating: 1,
-  summary: 'hello',
-  body: 'what it do baby yao yoa',
-  name: 'IU',
-  email: 'tea@time.com',
-  recommend: true,
-  characteristics: {
-    125031: 2,
-    125032: 3,
-    125033: 4,
-    125034: 4,
-  },
-  photos: ['http://res.cloudinary.com/joehan/image/upload/v1658260875/b7xg9m7xthi6uzftq5me.jpg']
-};
-
 //add review
 app.post('/reviews', (req, res) => {
   let reviewForm = req.body;
   let chars = reviewForm.characteristics;
   let photoUrls = [];
   if (reviewForm.photos) {
-    console.log('photos exists!')
     photoUrls = reviewForm.photos;
     delete reviewForm.photos;
   }
@@ -144,22 +126,22 @@ app.post('/reviews', (req, res) => {
   let lastCharId = 0;
   let lastCharReviewId = 0;
   let charsOfProduct = [];
-  db.getLastPhoto()
+  db.getLast('photo')
     .then((photo) => lastPhotoId = photo[0].id)
     .then(() => console.log('this is the last photo id', lastPhotoId));
-  db.getLastChar()
+  db.getLast('char')
     .then((char) => lastCharId = char[0].id)
     .then(() => console.log('this is the last photo id', lastCharId));
-  db.getLastCharReview()
+  db.getLast('charreview')
     .then((charRev) => lastCharReviewId = charRev[0].id)
     .then(() => console.log('this is the last photo id', lastCharReviewId));
   db.getCharsForProduct(reviewForm.product_id)
     .then((res) => charsOfProduct = res)
     .then(()=> console.log('these are teh chars of Product', charsOfProduct));
-  db.getLastReview()
+  db.getLast('review')
     .then((review) => {
       reviewForm.id = review[0].id + 1
-      db.create(reviewForm)
+      db.create('review', reviewForm)
         .then(() => {
           console.log('success adding review');
         })
@@ -171,7 +153,7 @@ app.post('/reviews', (req, res) => {
             photoObjs.push(obj);
           })
           // console.log(photoObjs);
-          db.createPhoto(photoObjs)
+          db.create('photo', photoObjs)
             .then(() => console.log('success adding photos'))
             .catch((err) => console.log(err, 'error adding photos'))
             .then(() => { // onto characteristic reviews
@@ -185,7 +167,7 @@ app.post('/reviews', (req, res) => {
                 charRevObjs.push(obj);
               })
               console.log(charRevObjs);
-              db.createCharReview(charRevObjs)
+              db.create('charreview', charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
                 .then(() => res.send('review added to database'))
@@ -196,7 +178,7 @@ app.post('/reviews', (req, res) => {
                 //     characObjs.push(obj);
                 //   })
                 //   console.log(characObjs, 'CHARACOBJECTSHERE');
-                //   db.createChar(characObjs)
+                //   db.create('char', characObjs)
                 //     .then(() => console.log('success adding chars'))
                 //     .catch((err) => console.log(err, 'error adding chars'))
                 //     .then(() => res.send('review added to database'))  // DONE

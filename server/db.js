@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 mongoose
   .connect(`mongodb://127.0.0.1:27017/${process.env.DB_NAME}`)
-  .then(console.log('Connected to MongoDB...'))
+  .then(console.log('AHA MONGO MONGO'))
   .catch((err) => console.log(err, 'error connecting to db'));
 
 const ReviewSchema = new Schema(
@@ -50,13 +50,10 @@ const CharReviewSchema = new Schema({
 
 const CharReview = mongoose.model('Characteristic_review', CharReviewSchema);
 
-
-
 const findByProductId = (productId) => {
   return (
     Review.find({product_id:productId})
     .lean()
-    // .limit(150)
     .exec()
     .catch(err => console.log(err))
     )
@@ -120,10 +117,6 @@ const bulkTransform = (n) => {
     });
 }
 
-const create = (data) => {
-  return Review.create(data)
-   .then((res) => console.log(res));
-}
 
 const markHelpful = (reviewId) => {
   return Review.findOneAndUpdate({id: reviewId}, { $inc: {helpfulness: 1}}).exec();
@@ -137,56 +130,30 @@ const findCharsByReview = (reviewId) => {
   return CharReview.find({review_id: reviewId}).lean().exec();
 }
 
-const getLastReview = () => {
-  return Review.find().sort({'_id': -1}).limit(1).exec()
-}
-const getLastPhoto = () => {
-  return Photo.find().sort({'_id': -1}).limit(1).exec()
-}
-const getLastChar = () => {
-  return Characteristic.find().sort({'_id': -1}).limit(1).exec()
-}
-const getLastCharReview = () => {
-  return CharReview.find().sort({'_id': -1}).limit(1).exec()
-}
-// getLastReview()
-//   .then((res) => console.log(res));
-//   getLastPhoto()
-//   .then((res) => console.log(res));
-//   getLastCharReview()
-//   .then((res) => console.log(res));
-
-const createPhoto = (data) => {
-  return Photo.create(data)
-    .then((res) => console.log(res))
+const getLast = (option) => {
+  if (option === 'review') return Review.find().sort({'_id': -1}).limit(1).exec();
+  if (option === 'photo') return Photo.find().sort({'_id': -1}).limit(1).exec();
+  if (option === 'char') return Characteristic.find().sort({'_id': -1}).limit(1).exec();
+  if (option === 'charreview') return CharReview.find().sort({'_id': -1}).limit(1).exec();
 }
 
-const createChar = (data) => {
-  return Characteristic.create(data)
-    .then((res) => console.log(res))
-}
-const createCharReview = (data) => {
-  return CharReview.create(data)
-    .then((res) => console.log(res))
+// getLast('photo').then((res)=>console.log(res))
+// const create = (data) => {
+//   return Review.create(data).then((res) => console.log(res));
+// }
+const create = (option, data) => {
+  if (option === 'review') return Review.create(data).then((res) => console.log(res));
+  if (option === 'photo') return Photo.create(data).then((res) => console.log(res));
+  if (option === 'char') return Characteristic.create(data).then((res) => console.log(res));
+  if (option === 'charreview') return CharReview.create(data).then((res) => console.log(res));
 }
 
 const getCharsForProduct = (productId) => {
   return Characteristic.find({product_id: productId}).exec()
-    // .then((res) => console.log(res))
 }
-
-// getCharsForProduct(5);
-// let chararray = [];
-// chararray.push({id: 14, product_id: 5, name: 'Fit'})
-// chararray.push({id: 15, product_id: 5, name: 'Length'})
-// chararray.push({id: 16, product_id: 5, name: 'Comfort'})
-// chararray.push({id: 17, product_id: 5, name: 'Quality'})
-// createChar(chararray)
-//   .then((res) => console.log(res));
 
 module.exports = {
   findByProductId,
-  create,
   Photo,
   Review,
   transform,
@@ -198,12 +165,7 @@ module.exports = {
   report,
   findChar,
   findCharsByReview,
-  getLastReview,
-  getLastPhoto,
-  getLastChar,
-  getLastCharReview,
-  createPhoto,
-  createChar,
-  createCharReview,
+  create,
   getCharsForProduct,
+  getLast,
 }
