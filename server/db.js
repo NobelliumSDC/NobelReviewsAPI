@@ -42,11 +42,16 @@ const CharacteristicSchema = new Schema({
 
 const Characteristic = mongoose.model('Characteristic', CharacteristicSchema);
 
+const CharReviewSchema = new Schema({
+  id: Number,
+  characteristic_id: Number,
+  review_id: Number,
+  value: Number,
+})
+
+const CharReview = mongoose.model('Characteristic_review', CharReviewSchema);
 
 
-const findPhotos = () => {
-  return Photo.find({review_id:5}).exec();
-}
 
 const findByProductId = (productId) => {
   return (
@@ -58,8 +63,8 @@ const findByProductId = (productId) => {
     )
   };
 
-const findChar = () => {
-  return Characteristic.find({product_id: 1}).exec();
+const findChar = (productId) => {
+  return Characteristic.find({product_id: productId}).lean().exec();
 }
 
 const findPhotoUrls = (reviewId) => {
@@ -129,10 +134,13 @@ const report = (reviewId) => {
   return Review.findOneAndUpdate({id: reviewId}, {reported: true}).exec();
 }
 
+const findCharsByReview = (reviewId) => {
+  return CharReview.find({review_id: reviewId}).lean().exec();
+}
+
 module.exports = {
   findByProductId,
   create,
-  findPhotos,
   Photo,
   Review,
   transform,
@@ -142,4 +150,6 @@ module.exports = {
   getPhotoUrlArray,
   markHelpful,
   report,
+  findChar,
+  findCharsByReview,
 }
