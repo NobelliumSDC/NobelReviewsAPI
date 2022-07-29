@@ -163,12 +163,27 @@ const createPhoto = (data) => {
 
 const createChar = (data) => {
   return Characteristic.create(data)
-    .then((res) => console.log)
+    .then((res) => console.log(res))
 }
 const createCharReview = (data) => {
   return CharReview.create(data)
-    .then((res) => console.log)
+    .then((res) => console.log(res))
 }
+
+const getCharsForProduct = (productId) => {
+  return Characteristic.find({product_id: productId}).exec()
+    // .then((res) => console.log(res))
+}
+
+// getCharsForProduct(5);
+// let chararray = [];
+// chararray.push({id: 14, product_id: 5, name: 'Fit'})
+// chararray.push({id: 15, product_id: 5, name: 'Length'})
+// chararray.push({id: 16, product_id: 5, name: 'Comfort'})
+// chararray.push({id: 17, product_id: 5, name: 'Quality'})
+// createChar(chararray)
+//   .then((res) => console.log(res));
+
 module.exports = {
   findByProductId,
   create,
@@ -190,4 +205,5 @@ module.exports = {
   createPhoto,
   createChar,
   createCharReview,
+  getCharsForProduct,
 }

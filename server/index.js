@@ -62,24 +62,24 @@ app.get('/reviews/meta', (req, res) => {
       })
     })
     .then(() => {
-      db.findChar(id)
+      db.findChar(id) // find in collection characteristics with product_id
       .then((chars) => {
         chars.forEach(char => {
-          returnObj.characteristics[`${char.name}`] = {id:char.id};
+          returnObj.characteristics[`${char.name}`] = {id:char.id}; // will log as 14, 15, 16, 17
         })
       })
       .then(() => {
         let ops = [];
         reviewIds.forEach(id => {
-          ops.push(db.findCharsByReview(id));
+          ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
         })
         return Promise.all(ops); //
       })
-      .then((charsOfReviews) => {
+      .then((charsOfReviews) => { // charsofreviews is an array of char reviews with ratings of each char
         let charsObj = {}
         charsOfReviews.forEach((charsOfReview) => {
           charsOfReview.forEach((char) => {
-            console.log(char);
+            // console.log(char);
             let charId = char.characteristic_id;
             !charsObj[charId]
               ? charsObj[charId] = char.value
@@ -93,7 +93,9 @@ app.get('/reviews/meta', (req, res) => {
           for(let name in returnObj.characteristics) {
             let charId = returnObj.characteristics[name].id + '';
             console.log(key);
+            console.log(charId, 'charId')
             if(charId === key) {
+              console.log('match!')
               returnObj.characteristics[name]['value'] = charsObj[key];
               break;
             }
@@ -141,6 +143,7 @@ app.post('/reviews', (req, res) => {
   let lastPhotoId = 0;
   let lastCharId = 0;
   let lastCharReviewId = 0;
+  let charsOfProduct = [];
   db.getLastPhoto()
     .then((photo) => lastPhotoId = photo[0].id)
     .then(() => console.log('this is the last photo id', lastPhotoId));
@@ -150,6 +153,9 @@ app.post('/reviews', (req, res) => {
   db.getLastCharReview()
     .then((charRev) => lastCharReviewId = charRev[0].id)
     .then(() => console.log('this is the last photo id', lastCharReviewId));
+  db.getCharsForProduct(reviewForm.product_id)
+    .then((res) => charsOfProduct = res)
+    .then(()=> console.log('these are teh chars of Product', charsOfProduct));
   db.getLastReview()
     .then((review) => {
       reviewForm.id = review[0].id + 1
@@ -159,7 +165,7 @@ app.post('/reviews', (req, res) => {
         })
         .catch((err) => console.log(err, 'error adding'))
         .then(() => {
-          const photoObjs = [];
+          let photoObjs = [];
           photoUrls.forEach((url, i) => {
             let obj = {id: lastPhotoId + 1 + i, review_id: reviewForm.id, url: url};
             photoObjs.push(obj);
@@ -169,9 +175,11 @@ app.post('/reviews', (req, res) => {
             .then(() => console.log('success adding photos'))
             .catch((err) => console.log(err, 'error adding photos'))
             .then(() => { // onto characteristic reviews
-              const charRevObjs = [];
+              let charRevObjs = [];
               let charRatings = Object.values(chars);
-              let charIds = Object.keys(chars);
+              // let charIds = Object.keys(chars);
+              let charIds = []
+              charsOfProduct.forEach((char) => charIds.push(char.id));
               charRatings.forEach((rating, i) => {
                 let obj = {id: lastCharReviewId + 1 + i, review_id: reviewForm.id, value: rating, characteristic_id: parseInt(charIds[i])}
                 charRevObjs.push(obj);
@@ -180,10 +188,28 @@ app.post('/reviews', (req, res) => {
               db.createCharReview(charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
-                .then(() => res.send('review added to database'))  // DONE
+                // .then(() => res.send('review added to database'))
+                .then(() => {
+                  let characObjs = [];
+                  let names = ['Fit', 'Length', 'Comfort', 'Quality'];
+
+                  charsOfProduct.forEach((char, i) => {
+                    let obj = {id: char.id, product_id: reviewForm.product_id, name: char.name};
+                    characObjs.push(obj);
+                  })
+                  console.log(characObjs, 'CHARACOBJECTSHERE');
+                  db.createChar(characObjs)
+                    .then(() => console.log('success adding chars'))
+                    .catch((err) => console.log(err, 'error adding chars'))
+                    .then(() => res.send('review added to database'))  // DONE
+                })
             }) // gott aadd the characteristics actually
+            // meta will never have an error if we are adding new characteristics and
+            // creating new ids.
+            //
         })
     })
+    // res.send('hello');
 })
 
 //mark as helpful
