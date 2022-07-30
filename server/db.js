@@ -61,12 +61,25 @@ const findByProductId = (productId, sortInput, page, count) => {
     sortOption = '-date';
   }
 
-  return Review.find({ product_id: productId, reported: false })
+  return Review.aggregate()
+    .match({ product_id: parseInt(productId), reported: false })
     .skip((page - 1) * count)
     .limit(count)
     .sort(sortOption)
-    .lean()
-    .exec()
+    .lookup({
+      from: 'reviews_photos',
+      localField: 'id',
+      foreignField: 'review_id',
+      as: 'photos'
+    })
+
+
+  // return Review.find({ product_id: productId, reported: false })
+  //   .skip((page - 1) * count)
+  //   .limit(count)
+  //   .sort(sortOption)
+  //   .lean()
+  //   .exec()
     // .catch((err) => console.log(err));
 };
 
@@ -139,15 +152,15 @@ const create = (option, data) => {
 
 const getCharsForProduct = (productId) => Characteristic.find({ product_id: productId }).exec();
 
-// Review.aggregate()
-//   .match({ product_id: 5000 })
-//   .lookup({
-//     from: 'reviews_photos',
-//     localField: 'id',
-//     foreignField: 'review_id',
-//     as: 'photos'
-//   })
-//   .then((res) => console.log(res));
+Review.aggregate()
+  .match({ product_id: 5000 })
+  .lookup({
+    from: 'reviews_photos',
+    localField: 'id',
+    foreignField: 'review_id',
+    as: 'photos'
+  })
+  .then((res) => console.log(res));
 
 
 module.exports = {
