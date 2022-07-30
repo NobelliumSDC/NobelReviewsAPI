@@ -30,21 +30,13 @@ app.get('/reviews', (req, res) => {
       const ops = [];
       for (let i = 0; i < resp.length; i++) {
         const isoDate = new Date(parseInt(reviews[i].date));
-        // console.log(JSON.stringify(isoDate));
         reviews[i].date = isoDate;
         if (reviews[i].response === "null") {
           reviews[i].response = null;
         }
-        ops.push(db.getPhotoUrlArray(resp[i].id));
+        // ops.push(db.getPhotoUrlArray(resp[i].id));
       }
-      return Promise.all(ops);
-    })
-    .then((arrays) => {
-      arrays.forEach((array, i) => {
-        reviews[i].photos = array;
-      });
-    })
-    .then(() => {
+      // return Promise.all(ops);
       const returnObj = {
         product: id,
         page,
@@ -52,7 +44,21 @@ app.get('/reviews', (req, res) => {
         results: reviews,
       };
       res.send(returnObj);
-    });
+    })
+    // .then((arrays) => {
+    //   arrays.forEach((array, i) => {
+    //     reviews[i].photos = array;
+    //   });
+    // })
+    // .then(() => {
+    //   const returnObj = {
+    //     product: id,
+    //     page,
+    //     count: (length < count) ? length : count,
+    //     results: reviews,
+    //   };
+    //   res.send(returnObj);
+    // });
 });
 
 app.get('/reviews/meta', (req, res) => {
