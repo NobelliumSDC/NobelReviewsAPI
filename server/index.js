@@ -7,7 +7,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const { toDate, parseISO }= require('date-fns');
+const { toDate, parseISO } = require('date-fns');
 require('newrelic');
 
 const app = express();
@@ -27,16 +27,13 @@ app.get('/reviews', (req, res) => {
     .then((resp) => {
       reviews = resp;
       length = resp.length;
-      const ops = [];
       for (let i = 0; i < resp.length; i++) {
         const isoDate = new Date(parseInt(reviews[i].date));
         reviews[i].date = isoDate;
-        if (reviews[i].response === "null") {
+        if (reviews[i].response === 'null') {
           reviews[i].response = null;
         }
-        // ops.push(db.getPhotoUrlArray(resp[i].id));
       }
-      // return Promise.all(ops);
       const returnObj = {
         product: id,
         page,
@@ -44,21 +41,7 @@ app.get('/reviews', (req, res) => {
         results: reviews,
       };
       res.send(returnObj);
-    })
-    // .then((arrays) => {
-    //   arrays.forEach((array, i) => {
-    //     reviews[i].photos = array;
-    //   });
-    // })
-    // .then(() => {
-    //   const returnObj = {
-    //     product: id,
-    //     page,
-    //     count: (length < count) ? length : count,
-    //     results: reviews,
-    //   };
-    //   res.send(returnObj);
-    // });
+    });
 });
 
 app.get('/reviews/meta', (req, res) => {
@@ -86,14 +69,14 @@ app.get('/reviews/meta', (req, res) => {
         returnObj.characteristics[`${char.name}`] = { id: char.id };
       });
       const charsObj = {};
-      reviews.forEach(review => {
+      reviews.forEach((review) => {
         review.char_reviews.forEach((char_review) => {
           const charId = char_review.characteristic_id;
           !charsObj[charId]
             ? charsObj[charId] = char_review.value
             : charsObj[charId] += char_review.value;
-        })
-      })
+        });
+      });
       for (const key in charsObj) {
         const temp = charsObj[key];
         charsObj[key] = parseFloat(temp) / reviewIds.length;
@@ -108,39 +91,6 @@ app.get('/reviews/meta', (req, res) => {
       }
     })
     .then(() => res.send(returnObj));
-    //     .then(() => {
-    //       const ops = [];
-    //       reviewIds.forEach((id) => {
-    //         ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
-    //       });
-    //       return Promise.all(ops); //
-    //     })
-    //     .then((charsOfReviews) => { // an array of char reviews with ratings of each char
-    //       const charsObj = {};
-    //       charsOfReviews.forEach((charsOfReview) => {
-    //         charsOfReview.forEach((char) => {
-    //           const charId = char.characteristic_id;
-    //           !charsObj[charId]
-    //             ? charsObj[charId] = char.value
-    //             : charsObj[charId] += char.value;
-    //         });
-    //       });
-    //       for (const key in charsObj) {
-    //         const temp = charsObj[key];
-    //         charsObj[key] = parseFloat(temp) / reviewIds.length;
-    //         for (const name in returnObj.characteristics) {
-    //           const charId = `${returnObj.characteristics[name].id}`;
-    //           if (charId === key) {
-    //             // console.log('match!');
-    //             returnObj.characteristics[name].value = charsObj[key];
-    //             break;
-    //           }
-    //         }
-    //       }
-    //     })
-    //     .then(() => res.send(returnObj))
-    // .catch((err) => res.send(err));
-  // res.send('hello');
 });
 
 // add review

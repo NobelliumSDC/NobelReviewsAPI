@@ -76,9 +76,6 @@ const findByProductId = (productId, sortInput, page, count) => {
     });
 };
 
-// findByProductId(5000, 'helpfulness', 1, 5)
-//   .then((res) => console.log(res))
-
 const getMetaInfo = (productId) => Review.aggregate()
   .match({ product_id: parseInt(productId), reported: false })
   .lookup({
@@ -165,7 +162,7 @@ const getLast = (option) => {
     // return Review.find().sort({ _id: -1 }).limit(1).exec();
     return Review.aggregate()
       .match({})
-      .sort({_id: -1})
+      .sort({ _id: -1 })
       .limit(1)
       .lookup({
         from: 'characteristics',
@@ -182,7 +179,7 @@ const getLast = (option) => {
   if (option === 'charreview') return CharReview.aggregate().match({}).sort({ _id: -1 }).limit(1).exec();
 };
 
-getLast('review').then((res) => console.log(res));
+// getLast('review').then((res) => console.log(res));
 
 const create = (option, data) => {
   if (option === 'review') return Review.create(data).then((res) => console.log(res));
