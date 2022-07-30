@@ -69,9 +69,15 @@ const findByProductId = (productId, sortInput, page, count) => {
       from: 'reviews_photos',
       localField: 'id',
       foreignField: 'review_id',
-      as: 'photos'
-    })
-}
+      pipeline: [{
+        $project: { _id: 0, review_id: 0}
+      }],
+      as: 'photos',
+    });
+};
+
+// findByProductId(5000, 'helpfulness', 1, 5)
+//   .then((res) => console.log(res))
 
 const getMetaInfo = (productId) => {
   return Review.aggregate()
@@ -181,4 +187,5 @@ module.exports = {
   create,
   getCharsForProduct,
   getLast,
+  getMetaInfo,
 };
