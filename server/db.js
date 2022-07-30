@@ -60,7 +60,6 @@ const findByProductId = (productId, sortInput, page, count) => {
   if (sortInput === 'newest') {
     sortOption = '-date';
   }
-
   return Review.aggregate()
     .match({ product_id: parseInt(productId), reported: false })
     .skip((page - 1) * count)
@@ -72,16 +71,30 @@ const findByProductId = (productId, sortInput, page, count) => {
       foreignField: 'review_id',
       as: 'photos'
     })
+}
 
-
-  // return Review.find({ product_id: productId, reported: false })
-  //   .skip((page - 1) * count)
-  //   .limit(count)
-  //   .sort(sortOption)
-  //   .lean()
-  //   .exec()
-    // .catch((err) => console.log(err));
+const getMetaInfo = (productId) => {
+  return Review.aggregate()
+    .match({ product_id: parseInt(productId), reported: false })
+    .lookup({
+      from: 'characteristic_reviews',
+      localField: 'id',
+      foreignField: 'review_id',
+      as: 'char_reviews'
+    })
+    .lookup({
+      from: 'characteristics',
+      localField: 'product_id',
+      foreignField: 'product_id',
+      as: 'characteristics'
+    })
+    .project({
+      summary: 0, body: 0, date: 0, reviewer_name: 0, reviewer_email: 0, response: 0,
+      _id: 0, reported: 0, helpfulness: 0,
+    })
 };
+
+// getMetaInfo(5000).then((res) => console.log(res));
 
 const findChar = (productId) => Characteristic.find({ product_id: productId }).lean().exec();
 
