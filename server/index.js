@@ -71,7 +71,7 @@ app.get('/reviews/meta', (req, res) => {
   };
 
   const reviewIds = [];
-  db.findByProductId(id, 'helpfulness', 1, 100)
+  db.getMetaInfo(id)
     .then((reviews) => {
       reviews.forEach((review) => {
         !returnObj.ratings[review.rating]
@@ -82,47 +82,64 @@ app.get('/reviews/meta', (req, res) => {
           : returnObj.recommended.false++;
         reviewIds.push(review.id);
       });
-    })
-    .then(() => {
-      db.findChar(id) // find in collection characteristics with product_id
-        .then((chars) => {
-          chars.forEach((char) => {
-            returnObj.characteristics[`${char.name}`] = { id: char.id }; // will load the current characteristics of product.
-          });
+      reviews[0].characteristics.forEach((char) => {
+        returnObj.characteristics[`${char.name}`] = { id: char.id };
+      });
+      const charsObj = {};
+      reviews.forEach(review => {
+        review.char_reviews.forEach((char_review) => {
+          const charId = char_review.characteristic_id;
+          !charsObj[charId]
+            ? charsObj[charId] = char_review.value
+            : charsObj[charId] += char_review.value;
         })
-        .then(() => {
-          const ops = [];
-          reviewIds.forEach((id) => {
-            ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
-          });
-          return Promise.all(ops); //
-        })
-        .then((charsOfReviews) => { // an array of char reviews with ratings of each char
-          const charsObj = {};
-          charsOfReviews.forEach((charsOfReview) => {
-            charsOfReview.forEach((char) => {
-              const charId = char.characteristic_id;
-              !charsObj[charId]
-                ? charsObj[charId] = char.value
-                : charsObj[charId] += char.value;
-            });
-          });
-          for (const key in charsObj) {
-            const temp = charsObj[key];
-            charsObj[key] = parseFloat(temp) / reviewIds.length;
-            for (const name in returnObj.characteristics) {
-              const charId = `${returnObj.characteristics[name].id}`;
-              if (charId === key) {
-                // console.log('match!');
-                returnObj.characteristics[name].value = charsObj[key];
-                break;
-              }
-            }
+      })
+      for (const key in charsObj) {
+        const temp = charsObj[key];
+        charsObj[key] = parseFloat(temp) / reviewIds.length;
+        for (const name in returnObj.characteristics) {
+          const charId = `${returnObj.characteristics[name].id}`;
+          if (charId === key) {
+            // console.log('match!');
+            returnObj.characteristics[name].value = charsObj[key];
+            break;
           }
-        })
-        .then(() => res.send(returnObj));
+        }
+      }
     })
-    .catch((err) => res.send(err));
+    .then(() => res.send(returnObj));
+    //     .then(() => {
+    //       const ops = [];
+    //       reviewIds.forEach((id) => {
+    //         ops.push(db.findCharsByReview(id)); // find in char_reviews with each review id
+    //       });
+    //       return Promise.all(ops); //
+    //     })
+    //     .then((charsOfReviews) => { // an array of char reviews with ratings of each char
+    //       const charsObj = {};
+    //       charsOfReviews.forEach((charsOfReview) => {
+    //         charsOfReview.forEach((char) => {
+    //           const charId = char.characteristic_id;
+    //           !charsObj[charId]
+    //             ? charsObj[charId] = char.value
+    //             : charsObj[charId] += char.value;
+    //         });
+    //       });
+    //       for (const key in charsObj) {
+    //         const temp = charsObj[key];
+    //         charsObj[key] = parseFloat(temp) / reviewIds.length;
+    //         for (const name in returnObj.characteristics) {
+    //           const charId = `${returnObj.characteristics[name].id}`;
+    //           if (charId === key) {
+    //             // console.log('match!');
+    //             returnObj.characteristics[name].value = charsObj[key];
+    //             break;
+    //           }
+    //         }
+    //       }
+    //     })
+    //     .then(() => res.send(returnObj))
+    // .catch((err) => res.send(err));
   // res.send('hello');
 });
 

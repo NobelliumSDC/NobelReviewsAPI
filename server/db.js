@@ -100,7 +100,7 @@ const getMetaInfo = (productId) => {
     })
 };
 
-// getMetaInfo(5000).then((res) => console.log(res));
+getMetaInfo(5000).then((res) => console.log(res));
 
 const findChar = (productId) => Characteristic.find({ product_id: productId }).lean().exec();
 
