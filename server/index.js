@@ -56,6 +56,7 @@ app.get('/reviews/meta', (req, res) => {
   const reviewIds = [];
   db.getMetaInfo(id)
     .then((reviews) => {
+      const charsObj = {};
       reviews.forEach((review) => {
         !returnObj.ratings[review.rating]
           ? returnObj.ratings[review.rating] = 1
@@ -64,12 +65,7 @@ app.get('/reviews/meta', (req, res) => {
           ? returnObj.recommended.true++
           : returnObj.recommended.false++;
         reviewIds.push(review.id);
-      });
-      reviews[0].characteristics.forEach((char) => {
-        returnObj.characteristics[`${char.name}`] = { id: char.id };
-      });
-      const charsObj = {};
-      reviews.forEach((review) => {
+
         review.char_reviews.forEach((char_review) => {
           const charId = char_review.characteristic_id;
           !charsObj[charId]
@@ -77,6 +73,10 @@ app.get('/reviews/meta', (req, res) => {
             : charsObj[charId] += char_review.value;
         });
       });
+      reviews[0].characteristics.forEach((char) => {
+        returnObj.characteristics[`${char.name}`] = { id: char.id };
+      });
+
       for (const key in charsObj) {
         const temp = charsObj[key];
         charsObj[key] = parseFloat(temp) / reviewIds.length;
@@ -112,8 +112,6 @@ app.post('/reviews', (req, res) => {
   let charsOfProduct = [];
   db.getLast('photo')
     .then((photo) => { lastPhotoId = photo[0].id; });
-  // db.getLast('char')
-  //   .then((char) => { lastCharId = char[0].id; });
   db.getLast('charreview')
     .then((charRev) => { lastCharReviewId = charRev[0].id; });
   db.getLast('review')

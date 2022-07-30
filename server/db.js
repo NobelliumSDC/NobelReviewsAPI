@@ -73,8 +73,25 @@ const findByProductId = (productId, sortInput, page, count) => {
         $project: { _id: 0, review_id: 0 },
       }],
       as: 'photos',
-    });
+    })
+    .project({
+      _id: 0,
+    })
+
+    // .addFields({
+    //   date: {
+    //     $toInt: '$date',
+    //   }
+    // })
+    // .addFields({
+    //   date: {
+    //     $toDate: '$date',
+    //   }
+    // })
 };
+
+// findByProductId(1, 'helpfulness', 1, 5).then(res => console.log(res))
+
 
 const getMetaInfo = (productId) => Review.aggregate()
   .match({ product_id: parseInt(productId), reported: false })
