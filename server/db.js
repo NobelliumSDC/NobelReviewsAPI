@@ -62,15 +62,15 @@ const findByProductId = (productId, sortInput, page, count) => {
   }
   return Review.aggregate()
     .match({ product_id: parseInt(productId), reported: false })
-    .skip((page - 1) * count)
-    .limit(count)
+    .skip((parseInt(page) - 1) * parseInt(count))
+    .limit(parseInt(count))
     .sort(sortOption)
     .lookup({
       from: 'reviews_photos',
       localField: 'id',
       foreignField: 'review_id',
       pipeline: [{
-        $project: { _id: 0, review_id: 0}
+        $project: { _id: 0, review_id: 0 },
       }],
       as: 'photos',
     });
@@ -79,28 +79,33 @@ const findByProductId = (productId, sortInput, page, count) => {
 // findByProductId(5000, 'helpfulness', 1, 5)
 //   .then((res) => console.log(res))
 
-const getMetaInfo = (productId) => {
-  return Review.aggregate()
-    .match({ product_id: parseInt(productId), reported: false })
-    .lookup({
-      from: 'characteristic_reviews',
-      localField: 'id',
-      foreignField: 'review_id',
-      as: 'char_reviews'
-    })
-    .lookup({
-      from: 'characteristics',
-      localField: 'product_id',
-      foreignField: 'product_id',
-      as: 'characteristics'
-    })
-    .project({
-      summary: 0, body: 0, date: 0, reviewer_name: 0, reviewer_email: 0, response: 0,
-      _id: 0, reported: 0, helpfulness: 0,
-    })
-};
+const getMetaInfo = (productId) => Review.aggregate()
+  .match({ product_id: parseInt(productId), reported: false })
+  .lookup({
+    from: 'characteristic_reviews',
+    localField: 'id',
+    foreignField: 'review_id',
+    as: 'char_reviews',
+  })
+  .lookup({
+    from: 'characteristics',
+    localField: 'product_id',
+    foreignField: 'product_id',
+    as: 'characteristics',
+  })
+  .project({
+    summary: 0,
+    body: 0,
+    date: 0,
+    reviewer_name: 0,
+    reviewer_email: 0,
+    response: 0,
+    _id: 0,
+    reported: 0,
+    helpfulness: 0,
+  });
 
-getMetaInfo(5000).then((res) => console.log(res));
+// getMetaInfo(5000).then((res) => console.log(res));
 
 const findChar = (productId) => Characteristic.find({ product_id: productId }).lean().exec();
 
