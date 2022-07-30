@@ -83,7 +83,6 @@ app.get('/reviews/meta', (req, res) => {
         for (const name in returnObj.characteristics) {
           const charId = `${returnObj.characteristics[name].id}`;
           if (charId === key) {
-            // console.log('match!');
             returnObj.characteristics[name].value = charsObj[key];
             break;
           }
@@ -113,8 +112,8 @@ app.post('/reviews', (req, res) => {
   let charsOfProduct = [];
   db.getLast('photo')
     .then((photo) => { lastPhotoId = photo[0].id; });
-  db.getLast('char')
-    .then((char) => { lastCharId = char[0].id; });
+  // db.getLast('char')
+  //   .then((char) => { lastCharId = char[0].id; });
   db.getLast('charreview')
     .then((charRev) => { lastCharReviewId = charRev[0].id; });
   db.getLast('review')
@@ -163,7 +162,7 @@ app.post('/reviews', (req, res) => {
 app.put('/reviews/:review_id/helpful', (req, res) => {
   const id = req.params.review_id.slice(1);
   db.markHelpful(id)
-    .then((response) => console.log(response, 'success marking helpful'))
+    // .then((response) => console.log(response, 'success marking helpful'))
     .catch((err) => console.log('error marking helpful', err));
   res.send('success');
 });
@@ -172,7 +171,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 app.put('/reviews/:review_id/report', (req, res) => {
   const id = req.params.review_id.slice(1);
   db.report(id)
-    .then((response) => console.log(response, 'success reporting review'))
+    // .then((response) => console.log(response, 'success reporting review'))
     .catch((err) => console.log('error reporting', err));
   res.send('success reporting');
 });
