@@ -8,6 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { toDate, parseISO }= require('date-fns');
+require('newrelic');
 
 const app = express();
 
@@ -117,6 +118,7 @@ app.get('/reviews/meta', (req, res) => {
         .then(() => res.send(returnObj));
     })
     .catch((err) => res.send(err));
+  // res.send('hello');
 });
 
 // add review

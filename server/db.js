@@ -67,7 +67,7 @@ const findByProductId = (productId, sortInput, page, count) => {
     .sort(sortOption)
     .lean()
     .exec()
-    .catch((err) => console.log(err));
+    // .catch((err) => console.log(err));
 };
 
 const findChar = (productId) => Characteristic.find({ product_id: productId }).lean().exec();
@@ -130,10 +130,6 @@ const getLast = (option) => {
   if (option === 'charreview') return CharReview.find().sort({ _id: -1 }).limit(1).exec();
 };
 
-// getLast('photo').then((res)=>console.log(res))
-// const create = (data) => {
-//   return Review.create(data).then((res) => console.log(res));
-// }
 const create = (option, data) => {
   if (option === 'review') return Review.create(data).then((res) => console.log(res));
   if (option === 'photo') return Photo.create(data).then((res) => console.log(res));
@@ -142,6 +138,17 @@ const create = (option, data) => {
 };
 
 const getCharsForProduct = (productId) => Characteristic.find({ product_id: productId }).exec();
+
+// Review.aggregate()
+//   .match({ product_id: 5000 })
+//   .lookup({
+//     from: 'reviews_photos',
+//     localField: 'id',
+//     foreignField: 'review_id',
+//     as: 'photos'
+//   })
+//   .then((res) => console.log(res));
+
 
 module.exports = {
   findByProductId,
