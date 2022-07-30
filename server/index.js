@@ -71,7 +71,7 @@ app.get('/reviews/meta', (req, res) => {
   };
 
   const reviewIds = [];
-  db.findByProductId(id)
+  db.findByProductId(id, 'helpfulness', 1, 100)
     .then((reviews) => {
       reviews.forEach((review) => {
         !returnObj.ratings[review.rating]
@@ -107,7 +107,6 @@ app.get('/reviews/meta', (req, res) => {
                 : charsObj[charId] += char.value;
             });
           });
-          console.log(charsObj);
           for (const key in charsObj) {
             const temp = charsObj[key];
             charsObj[key] = parseFloat(temp) / reviewIds.length;

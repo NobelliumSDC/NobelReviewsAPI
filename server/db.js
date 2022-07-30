@@ -152,17 +152,6 @@ const create = (option, data) => {
 
 const getCharsForProduct = (productId) => Characteristic.find({ product_id: productId }).exec();
 
-Review.aggregate()
-  .match({ product_id: 5000 })
-  .lookup({
-    from: 'reviews_photos',
-    localField: 'id',
-    foreignField: 'review_id',
-    as: 'photos'
-  })
-  .then((res) => console.log(res));
-
-
 module.exports = {
   findByProductId,
   Photo,
