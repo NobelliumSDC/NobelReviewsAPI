@@ -161,11 +161,28 @@ const report = (reviewId) => Review.findOneAndUpdate({ id: reviewId }, { reporte
 const findCharsByReview = (reviewId) => CharReview.find({ review_id: reviewId }).lean().exec();
 
 const getLast = (option) => {
-  if (option === 'review') return Review.find().sort({ _id: -1 }).limit(1).exec();
-  if (option === 'photo') return Photo.find().sort({ _id: -1 }).limit(1).exec();
-  if (option === 'char') return Characteristic.find().sort({ _id: -1 }).limit(1).exec();
-  if (option === 'charreview') return CharReview.find().sort({ _id: -1 }).limit(1).exec();
+  if (option === 'review') {
+    // return Review.find().sort({ _id: -1 }).limit(1).exec();
+    return Review.aggregate()
+      .match({})
+      .sort({_id: -1})
+      .limit(1)
+      .lookup({
+        from: 'characteristics',
+        localField: 'product_id',
+        foreignField: 'product_id',
+        pipeline: [{
+          $project: { _id: 0 },
+        }],
+        as: 'chars',
+      });
+  }
+  if (option === 'photo') return Photo.aggregate().match({}).sort({ _id: -1 }).limit(1).exec();
+  if (option === 'char') return Characteristic.aggregate().match({}).sort({ _id: -1 }).limit(1).exec();
+  if (option === 'charreview') return CharReview.aggregate().match({}).sort({ _id: -1 }).limit(1).exec();
 };
+
+getLast('review').then((res) => console.log(res));
 
 const create = (option, data) => {
   if (option === 'review') return Review.create(data).then((res) => console.log(res));

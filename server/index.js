@@ -159,23 +159,18 @@ app.post('/reviews', (req, res) => {
   reviewForm.reviewer_name = reviewForm.name;
   reviewForm.date = (`${new Date().getTime()}`);
   let lastPhotoId = 0;
-  // let lastCharId = 0;
   let lastCharReviewId = 0;
   let charsOfProduct = [];
   db.getLast('photo')
     .then((photo) => { lastPhotoId = photo[0].id; });
-    // .then(() => console.log('this is the last photo id', lastPhotoId));
   db.getLast('char')
     .then((char) => { lastCharId = char[0].id; });
-    // .then(() => console.log('this is the last photo id', lastCharId));
   db.getLast('charreview')
     .then((charRev) => { lastCharReviewId = charRev[0].id; });
-    // .then(() => console.log('this is the last photo id', lastCharReviewId));
-  db.getCharsForProduct(reviewForm.product_id)
-    .then((cOfP) => { charsOfProduct = cOfP; });
-    // .then(() => console.log('these are teh chars of Product', charsOfProduct));
   db.getLast('review')
     .then((review) => {
+      charsOfProduct = review[0].chars;
+      console.log(review.chars);
       reviewForm.id = review[0].id + 1;
       db.create('review', reviewForm)
         .then(() => {
@@ -188,14 +183,12 @@ app.post('/reviews', (req, res) => {
             const obj = { id: lastPhotoId + 1 + i, review_id: reviewForm.id, url };
             photoObjs.push(obj);
           });
-          // console.log(photoObjs);
           db.create('photo', photoObjs)
             .then(() => console.log('success adding photos'))
             .catch((err) => console.log(err, 'error adding photos'))
             .then(() => { // onto characteristic reviews
               const charRevObjs = [];
               const charRatings = Object.values(chars);
-              // let charIds = Object.keys(chars);
               const charIds = [];
               charsOfProduct.forEach((char) => charIds.push(char.id));
               charRatings.forEach((rating, i) => {
@@ -207,7 +200,6 @@ app.post('/reviews', (req, res) => {
                 };
                 charRevObjs.push(obj);
               });
-              // console.log(charRevObjs);
               db.create('charreview', charRevObjs)
                 .then(() => console.log('success adding charreviews'))
                 .catch((err) => console.log(err, 'error adding charreviews'))
