@@ -77,17 +77,6 @@ const findByProductId = (productId, sortInput, page, count) => {
     .project({
       _id: 0,
     })
-
-    // .addFields({
-    //   date: {
-    //     $toInt: '$date',
-    //   }
-    // })
-    // .addFields({
-    //   date: {
-    //     $toDate: '$date',
-    //   }
-    // })
 };
 
 // findByProductId(1, 'helpfulness', 1, 5).then(res => console.log(res))
@@ -99,12 +88,18 @@ const getMetaInfo = (productId) => Review.aggregate()
     from: 'characteristic_reviews',
     localField: 'id',
     foreignField: 'review_id',
+    pipeline: [{
+      $project: { _id: 0, review_id: 0, id: 0 },
+    }],
     as: 'char_reviews',
   })
   .lookup({
     from: 'characteristics',
     localField: 'product_id',
     foreignField: 'product_id',
+    pipeline: [{
+      $project: { _id: 0, product_id: 0 },
+    }],
     as: 'characteristics',
   })
   .project({
@@ -119,7 +114,8 @@ const getMetaInfo = (productId) => Review.aggregate()
     helpfulness: 0,
   })
 
-// getMetaInfo(500).then((res) => console.log(res));
+
+// getMetaInfo(500).then((res) => console.log(res[0].characteristics));
 
 const markHelpful = (reviewId) => Review.findOneAndUpdate({ id: reviewId }, { $inc: { helpfulness: 1 } }).exec();
 

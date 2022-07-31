@@ -7,8 +7,8 @@
     "client-dev": "npx webpack --watch",
     "build": "npx webpack",
     "start": "node server/index.js",
-    "seed": "node server/seed.js",
     "test": "jest",
+    "k6-test": "k6 run server/script.js",
     "(UNSUPPORTED BY DEFAULT; see webpack.config.js for more info) client-dev:hot": "npx webpack serve --hot --open"
   },
   "dependencies": {
@@ -16,8 +16,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "mongodb": "^4.8.1",
-    "mongoose": "^6.4.0",
-    "newrelic": "^8.17.0"
+    "mongoose": "^6.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

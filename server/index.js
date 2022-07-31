@@ -8,7 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 // const { toDate, parseISO } = require('date-fns');
-require('newrelic');
+// require('newrelic');
 
 const app = express();
 
@@ -52,6 +52,7 @@ app.get('/reviews/meta', (req, res) => {
     recommended: { true: 0, false: 0 },
     characteristics: {},
   };
+  // db.getMetaInfo(id).then((reviews) => res.send(reviews));
 
   const reviewIds = [];
   db.getMetaInfo(id)
