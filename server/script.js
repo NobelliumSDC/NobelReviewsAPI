@@ -13,7 +13,7 @@ const url = 'http://localhost:3000/reviews?product_id=1000000';
 const urlMeta = 'http://localhost:3000/reviews/meta?product_id=1000000';
 
 export default function() {
-  const res = http.get(urlMeta);
+  const res = http.get(url);
   check(res, {
     'is status 200': (r) => r.status === 200,
     'transaction time < 50ms': (r) => r.timings.duration < 200,
