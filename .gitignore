@@ -1,0 +1,7 @@
+node_modules/
+client/dist/
+.env
+.DS_Store
+package-lock.json
+newrelic_agent.log
+newrelic.js
