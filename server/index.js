@@ -25,22 +25,22 @@ app.get('/reviews', (req, res) => {
   let length = 0;
   db.findByProductId(id, sortMethod, page, count) // sortoption
     .then((resp) => {
-      // reviews = resp;
-      // length = resp.length;
-      // for (let i = 0; i < resp.length; i++) {
-      //   const isoDate = new Date(parseInt(reviews[i].date));
-      //   reviews[i].date = isoDate;
-      //   if (reviews[i].response === 'null') {
-      //     reviews[i].response = null;
-      //   }
-      // }
-      // const returnObj = {
-      //   product: id,
-      //   page,
-      //   count: (length < count) ? length : count,
-      //   results: reviews,
-      // };
-      res.send(resp);
+      reviews = resp;
+      length = resp.length;
+      for (let i = 0; i < resp.length; i++) {
+        const isoDate = new Date(parseInt(reviews[i].date));
+        reviews[i].date = isoDate;
+        if (reviews[i].response === 'null') {
+          reviews[i].response = null;
+        }
+      }
+      const returnObj = {
+        product: id,
+        page,
+        count: (length < count) ? length : count,
+        results: reviews,
+      };
+      res.send(returnObj);
     });
 });
 
