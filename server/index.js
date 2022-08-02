@@ -177,4 +177,8 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+app.get(`/${process.env.LOADER_TOKEN}`, (req, res) => {
+  res.sendFile(__dirname + '/loaderio.txt')
+});
+
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}`));

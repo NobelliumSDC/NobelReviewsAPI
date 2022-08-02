@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 mongoose
-  .connect(`${process.env.DB_HOST}/${process.env.DB_NAME}`)
+  .connect(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`)
   .then(console.log('AHA MONGO MONGO'))
   .catch((err) => console.log(err, 'error connecting to db'));
 
