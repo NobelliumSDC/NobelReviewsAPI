@@ -52,45 +52,45 @@ app.get('/reviews/meta', (req, res) => {
     recommended: { true: 0, false: 0 },
     characteristics: {},
   };
-  db.getMetaInfo(id).then((reviews) => res.send(reviews));
+  // db.getMetaInfo(id).then((reviews) => res.send(reviews));
 
-  // const reviewIds = [];
-  // db.getMetaInfo(id)
-  //   .then((reviews) => {
-  //     const charsObj = {};
-  //     reviews.forEach((review) => {
-  //       !returnObj.ratings[review.rating]
-  //         ? returnObj.ratings[review.rating] = 1
-  //         : returnObj.ratings[review.rating]++;
-  //       review.recommend
-  //         ? returnObj.recommended.true++
-  //         : returnObj.recommended.false++;
-  //       reviewIds.push(review.id);
+  const reviewIds = [];
+  db.getMetaInfo(id)
+    .then((reviews) => {
+      const charsObj = {};
+      reviews.forEach((review) => {
+        !returnObj.ratings[review.rating]
+          ? returnObj.ratings[review.rating] = 1
+          : returnObj.ratings[review.rating]++;
+        review.recommend
+          ? returnObj.recommended.true++
+          : returnObj.recommended.false++;
+        reviewIds.push(review.id);
 
-  //       review.char_reviews.forEach((char_review) => {
-  //         const charId = char_review.characteristic_id;
-  //         !charsObj[charId]
-  //           ? charsObj[charId] = char_review.value
-  //           : charsObj[charId] += char_review.value;
-  //       });
-  //     });
-  //     reviews[0].characteristics.forEach((char) => {
-  //       returnObj.characteristics[`${char.name}`] = { id: char.id };
-  //     });
+        review.char_reviews.forEach((char_review) => {
+          const charId = char_review.characteristic_id;
+          !charsObj[charId]
+            ? charsObj[charId] = char_review.value
+            : charsObj[charId] += char_review.value;
+        });
+      });
+      reviews[0].characteristics.forEach((char) => {
+        returnObj.characteristics[`${char.name}`] = { id: char.id };
+      });
 
-  //     for (const key in charsObj) {
-  //       const temp = charsObj[key];
-  //       charsObj[key] = parseFloat(temp) / reviewIds.length;
-  //       for (const name in returnObj.characteristics) {
-  //         const charId = `${returnObj.characteristics[name].id}`;
-  //         if (charId === key) {
-  //           returnObj.characteristics[name].value = charsObj[key];
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   })
-  //   .then(() => res.send(returnObj));
+      for (const key in charsObj) {
+        const temp = charsObj[key];
+        charsObj[key] = parseFloat(temp) / reviewIds.length;
+        for (const name in returnObj.characteristics) {
+          const charId = `${returnObj.characteristics[name].id}`;
+          if (charId === key) {
+            returnObj.characteristics[name].value = charsObj[key];
+            break;
+          }
+        }
+      }
+    })
+    .then(() => res.send(returnObj));
 });
 
 // add review
