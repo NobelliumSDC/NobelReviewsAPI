@@ -145,10 +145,14 @@ const getLast = (option) => {
 // getLast('review').then((res) => console.log(res));
 
 const create = (option, data) => {
-  if (option === 'review') return Review.create(data).then((res) => console.log(res));
-  if (option === 'photo') return Photo.create(data).then((res) => console.log(res));
-  if (option === 'char') return Characteristic.create(data).then((res) => console.log(res));
-  if (option === 'charreview') return CharReview.create(data).then((res) => console.log(res));
+  if (option === 'review') return Review.create(data)
+    // .then((res) => console.log(res));
+  if (option === 'photo') return Photo.create(data)
+    // .then((res) => console.log(res));
+  if (option === 'char') return Characteristic.create(data)
+    // .then((res) => console.log(res));
+  if (option === 'charreview') return CharReview.create(data)
+    // .then((res) => console.log(res));
 };
 
 module.exports = {
